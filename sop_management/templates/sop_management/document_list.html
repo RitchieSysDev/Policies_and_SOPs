@@ -1,0 +1,33 @@
+{% extends "sop_management/base.html" %}
+{% block title %}Policies and SOPs{% endblock %}
+{% block content %}
+<div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+  <div>
+    <h1 class="text-3xl font-bold text-ghc-navy">Policies &amp; Standard Operating Procedures</h1>
+    <p class="mt-1 text-slate-600">Controlled documents and their currently approved editions.</p>
+  </div>
+  {% if perms.sop_management.add_document and perms.sop_management.add_documentversion and perms.sop_management.change_documentversion %}
+  <a class="rounded bg-ghc-cyan px-4 py-2 font-semibold text-white hover:bg-cyan-700" href="{% url 'sop_management:document_create' %}">Register document</a>
+  {% endif %}
+</div>
+<div class="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+  <table class="w-full text-left text-sm">
+    <thead class="bg-ghc-navy text-white">
+      <tr><th class="p-3">Document code</th><th class="p-3">Title</th><th class="p-3">Committee</th><th class="p-3">Version</th><th class="p-3">Review date</th></tr>
+    </thead>
+    <tbody>
+      {% for document in documents %}
+      <tr class="border-t border-slate-200 hover:bg-slate-50">
+        <td class="p-3 font-semibold"><a class="text-ghc-navy underline" href="{% url 'sop_management:document_detail' document.pk %}">{{ document.document_code }}</a></td>
+        <td class="p-3">{% with active=document.active_versions.0 %}{% if active %}{{ active.title }}{% else %}<span class="text-slate-500">No approved version</span>{% endif %}{% endwith %}</td>
+        <td class="p-3">{{ document.document_owner_committee }}</td>
+        <td class="p-3">{% with active=document.active_versions.0 %}{% if active %}{{ active.version_number }}{% else %}—{% endif %}{% endwith %}</td>
+        <td class="p-3">{% with active=document.active_versions.0 %}{% if active %}{{ active.review_date|date:"d M Y" }}{% else %}—{% endif %}{% endwith %}</td>
+      </tr>
+      {% empty %}
+      <tr><td class="p-5 text-center text-slate-500" colspan="5">No documents have been registered.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

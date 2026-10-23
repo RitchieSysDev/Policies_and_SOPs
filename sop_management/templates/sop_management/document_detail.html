@@ -1,0 +1,68 @@
+{% extends "sop_management/base.html" %}
+{% load sop_content %}
+{% block title %}{{ document.document_code }}{% endblock %}
+{% block content %}
+{% if not pdf_mode %}
+<div class="no-print mb-4 flex flex-wrap justify-between gap-3">
+  <a class="text-ghc-navy underline" href="{% url 'sop_management:document_list' %}">← Back to documents</a>
+  <div class="flex gap-3">
+    {% if version and version.is_active %}
+    <a class="rounded border border-ghc-navy px-4 py-2 text-sm font-semibold text-ghc-navy" href="{% url 'sop_management:document_pdf' document.pk %}">Download / print PDF</a>
+    {% endif %}
+    {% if perms.sop_management.add_documentversion and perms.sop_management.change_documentversion %}
+    <a class="rounded bg-ghc-cyan px-4 py-2 text-sm font-semibold text-white" href="{% url 'sop_management:version_create' document.pk %}">New draft</a>
+    {% endif %}
+    {% if version and version.status != "ARCHIVED" and perms.sop_management.change_documentversion %}
+    <a class="rounded bg-ghc-navy px-4 py-2 text-sm font-semibold text-white" href="{% url 'sop_management:version_edit' document.pk version.pk %}">Edit / revise</a>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+<article class="document-sheet mx-auto max-w-5xl border border-slate-300 bg-white p-7 shadow-sm">
+  <header class="border-b-2 border-ghc-navy pb-4 text-center">
+    <h1 class="text-xl font-extrabold text-ghc-navy">GLOCAL HEALTHCARE CENTRE OF EXCELLENCE (GHC-E)</h1>
+    <p class="text-sm italic text-slate-600">Global Standards, Local Care</p>
+    <p class="mt-4 text-lg font-bold uppercase text-ghc-navy">Document Control</p>
+  </header>
+  <table class="mt-5 w-full border-collapse text-sm">
+    <tbody>
+      <tr><th class="w-1/4 border border-slate-400 bg-slate-100 p-2 text-left">Document code</th><td class="border border-slate-400 p-2">{{ document.document_code }}</td><th class="w-1/4 border border-slate-400 bg-slate-100 p-2 text-left">Version</th><td class="border border-slate-400 p-2">{% if version %}{{ version.version_number }}{% else %}—{% endif %}</td></tr>
+      <tr><th class="border border-slate-400 bg-slate-100 p-2 text-left">Title</th><td class="border border-slate-400 p-2" colspan="3">{% if version %}{{ version.title }}{% else %}No approved version{% endif %}</td></tr>
+      <tr><th class="border border-slate-400 bg-slate-100 p-2 text-left">Facility level</th><td class="border border-slate-400 p-2">{{ document.facility_level }}</td><th class="border border-slate-400 bg-slate-100 p-2 text-left">County / Sub-county</th><td class="border border-slate-400 p-2">{{ document.county }} / {{ document.sub_county }}</td></tr>
+      <tr><th class="border border-slate-400 bg-slate-100 p-2 text-left">Owner committee</th><td class="border border-slate-400 p-2">{{ document.document_owner_committee }}</td><th class="border border-slate-400 bg-slate-100 p-2 text-left">Status</th><td class="border border-slate-400 p-2">{% if version %}{{ version.get_status_display }}{% else %}Not approved{% endif %}</td></tr>
+      <tr><th class="border border-slate-400 bg-slate-100 p-2 text-left">Effective date</th><td class="border border-slate-400 p-2">{% if version %}{{ version.effective_date|date:"d M Y" }}{% else %}—{% endif %}</td><th class="border border-slate-400 bg-slate-100 p-2 text-left">Review date</th><td class="border border-slate-400 p-2">{% if version %}{{ version.review_date|date:"d M Y" }}{% else %}—{% endif %}</td></tr>
+      <tr><th class="border border-slate-400 bg-slate-100 p-2 text-left">Approved by</th><td class="border border-slate-400 p-2" colspan="3">{% if version %}{{ version.approved_by|default:"Pending approval" }}{% else %}—{% endif %}</td></tr>
+    </tbody>
+  </table>
+  {% if version %}
+  <section class="document-body mt-7">{{ version.body|safe_document_html }}</section>
+  {% else %}
+  <p class="mt-8 rounded bg-amber-50 p-4 text-amber-900">This controlled document does not yet have an approved active version.</p>
+  {% endif %}
+  {% if version and version.status == "DRAFT" and perms.sop_management.change_documentversion and not pdf_mode %}
+  <form method="post" action="{% url 'sop_management:version_approve' document.pk version.pk %}" class="no-print mt-8 border-t pt-5">
+    {% csrf_token %}
+    <p class="mb-3 text-sm text-slate-600">Approval records the authenticated user as approver and archives the previous active edition.</p>
+    <button class="rounded bg-emerald-700 px-4 py-2 font-semibold text-white" type="submit">Approve this draft</button>
+  </form>
+  {% endif %}
+</article>
+{% if version_history and not pdf_mode %}
+<section class="no-print mx-auto mt-6 max-w-5xl overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+  <h2 class="border-b border-slate-200 px-5 py-3 text-lg font-bold text-ghc-navy">Version history</h2>
+  <table class="w-full text-left text-sm">
+    <thead class="bg-slate-100"><tr><th class="p-3">Version</th><th class="p-3">Title</th><th class="p-3">Status</th><th class="p-3">Effective</th></tr></thead>
+    <tbody>
+      {% for item in version_history %}
+      <tr class="border-t border-slate-200">
+        <td class="p-3"><a class="font-semibold text-ghc-navy underline" href="{% url 'sop_management:version_detail' document.pk item.pk %}">{{ item.version_number }}</a></td>
+        <td class="p-3">{{ item.title }}</td>
+        <td class="p-3">{{ item.get_status_display }}</td>
+        <td class="p-3">{{ item.effective_date|date:"d M Y" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17365d">
+  <meta name="description" content="Publicly accessible approved policies and standard operating procedures from GHC-E.">
+  <link rel="icon" type="image/svg+xml" href="./ghce-mark.svg">
+  <link rel="stylesheet" href="./styles.css">
+  <title>Policies and SOPs | GHC-E</title>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="GHC-E policies home">
+      <img class="brand-mark" src="./ghce-mark.svg" alt="">
+      <span class="brand-copy">
+        <span class="facility-name">GLOCAL HEALTHCARE CENTRE OF EXCELLENCE <span class="brand-short">(GHC-E)</span></span>
+        <span class="motto">Global Standards, Local Care</span>
+      </span>
+    </a>
+  </header>
+
+  <nav class="top-nav" aria-label="Main navigation">
+    <a href="./" aria-current="page">Approved documents</a>
+    <a href="#facility-contact">Contact</a>
+  </nav>
+
+  <main id="main-content" class="page-shell">
+    <section id="list-view" aria-labelledby="page-title">
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">Document control</p>
+          <h1 id="page-title">Policies &amp; Standard Operating Procedures</h1>
+          <p class="lead">Browse the currently approved editions of GHC-E controlled documents.</p>
+        </div>
+        <p id="document-count" class="count-badge" aria-live="polite">Loading documents…</p>
+      </div>
+
+      <section class="search-panel" aria-label="Find documents">
+        <label class="search-field">
+          <span>Search documents</span>
+          <input id="search-input" type="search" placeholder="Search title, code, county, or committee" autocomplete="off">
+        </label>
+        <label class="search-field committee-filter">
+          <span>Owner committee</span>
+          <select id="committee-filter">
+            <option value="">All committees</option>
+          </select>
+        </label>
+      </section>
+
+      <p id="data-message" class="notice" role="status" hidden></p>
+      <div id="document-list" class="document-list" aria-live="polite"></div>
+      <noscript>
+        <p class="notice">JavaScript is required to load the published document catalogue.</p>
+      </noscript>
+      <p class="privacy-note">This public site contains approved documents only. Drafts and internal working materials must not be published here.</p>
+    </section>
+
+    <section id="detail-view" aria-labelledby="detail-title" hidden>
+      <div class="detail-actions">
+        <a id="back-link" class="back-link" href="./">← All documents</a>
+        <button id="print-button" class="button button-primary" type="button">Print / save as PDF</button>
+      </div>
+      <article id="document-sheet" class="document-sheet"></article>
+    </section>
+  </main>
+
+  <footer id="facility-contact" class="site-footer">
+    <strong>GLOCAL HEALTHCARE CENTRE OF EXCELLENCE (GHC-E)</strong>
+    <span>Global Standards, Local Care</span>
+    <address>
+      P.O Box 3243-00200 Nairobi – Kenya, Mwalimu Sacco, Kisaju Park, Namanga Road.<br>
+      Tel: +254 70904200 / +254 709040299. Email:
+      <a href="mailto:info@glocalhealthcarecentre.org">info@glocalhealthcarecentre.org</a>
+    </address>
+  </footer>
+</body>
+</html>

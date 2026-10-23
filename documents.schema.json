@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GHC-E public approved document catalogue",
+  "description": "Only approved, active public documents belong in documents.json. Never publish drafts or confidential content.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "document_code",
+      "title",
+      "owner_committee",
+      "version_number",
+      "effective_date",
+      "review_date",
+      "approved_by",
+      "status",
+      "is_active",
+      "body_html"
+    ],
+    "properties": {
+      "document_code": {
+        "type": "string",
+        "minLength": 1
+      },
+      "title": {
+        "type": "string",
+        "minLength": 1
+      },
+      "facility_level": {
+        "type": "string",
+        "default": "Level 3B"
+      },
+      "county": {
+        "type": "string"
+      },
+      "sub_county": {
+        "type": "string"
+      },
+      "owner_committee": {
+        "type": "string",
+        "minLength": 1
+      },
+      "version_number": {
+        "type": "string",
+        "pattern": "^[0-9]+\\.[0-9]+$"
+      },
+      "effective_date": {
+        "type": "string",
+        "format": "date"
+      },
+      "review_date": {
+        "type": "string",
+        "format": "date"
+      },
+      "approved_by": {
+        "type": "string",
+        "minLength": 1
+      },
+      "status": {
+        "const": "APPROVED"
+      },
+      "is_active": {
+        "const": true
+      },
+      "body_html": {
+        "type": "string"
+      },
+      "history": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "version_number",
+            "effective_date",
+            "status"
+          ],
+          "properties": {
+            "version_number": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "effective_date": {
+              "type": "string",
+              "format": "date"
+            },
+            "status": {
+              "const": "APPROVED"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "additionalProperties": false
+  }
+}

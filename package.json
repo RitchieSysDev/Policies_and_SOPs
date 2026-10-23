@@ -1,0 +1,12 @@
+{
+  "name": "ghce-sop-management-assets",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -i ./sop_management/static/sop_management/css/input.css -o ./sop_management/static/sop_management/css/app.css --minify",
+    "watch:css": "tailwindcss -i ./sop_management/static/sop_management/css/input.css -o ./sop_management/static/sop_management/css/app.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "4.3.0",
+    "tailwindcss": "4.3.0"
+  }
+}

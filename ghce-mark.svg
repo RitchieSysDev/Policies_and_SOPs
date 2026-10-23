@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <circle cx="32" cy="32" r="32" fill="#17365d"/>
+  <rect x="12" y="22" width="40" height="28" rx="4" fill="#00a6c7"/>
+  <path d="M24 22v-5a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v5" fill="none" stroke="#8bdcf0" stroke-width="4"/>
+  <path d="M28 27h8v5h5v8h-5v5h-8v-5h-5v-8h5z" fill="#d8f3fa"/>
+  <text x="32" y="59" fill="#d8f3fa" font-family="Arial,sans-serif" font-size="6" font-weight="700" text-anchor="middle">GHC-E</text>
+</svg>

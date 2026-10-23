@@ -1,0 +1,29 @@
+{% extends "sop_management/base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block content %}
+<section class="mx-auto max-w-4xl rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+  <h1 class="mb-6 text-2xl font-bold text-ghc-navy">{{ page_title }}</h1>
+  {% if version and version.status == "APPROVED" %}
+  <p class="mb-5 rounded bg-blue-50 p-3 text-sm text-blue-900">Saving creates a new draft version. This approved edition remains unchanged until the draft is approved.</p>
+  {% endif %}
+  <form method="post" class="space-y-5">
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="rounded bg-red-50 p-3 text-red-800">{{ form.non_field_errors }}</div>{% endif %}
+    {% for field in form %}
+    <div>
+      <label class="mb-1 block font-semibold text-ghc-navy" for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.help_text %}<p class="mt-1 text-sm text-slate-500">{{ field.help_text }}</p>{% endif %}
+      {% for error in field.errors %}<p class="mt-1 text-sm text-red-700">{{ error }}</p>{% endfor %}
+    </div>
+    {% endfor %}
+    <div class="flex gap-3 pt-2">
+      <button class="rounded bg-ghc-navy px-5 py-2 font-semibold text-white" type="submit">Save draft</button>
+      <a class="rounded border border-slate-300 px-5 py-2 text-slate-700" href="{% url 'sop_management:document_list' %}">Cancel</a>
+    </div>
+  </form>
+</section>
+<style>
+  input:not([type=checkbox]), select, textarea { width: 100%; border: 1px solid #cbd5e1; border-radius: .375rem; padding: .6rem .75rem; }
+</style>
+{% endblock %}

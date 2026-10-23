@@ -1,0 +1,81 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="{% static 'sop_management/img/ghce-mark.svg' %}">
+  <title>{% block title %}SOP &amp; Policy Management{% endblock %} | GHC-E</title>
+  {% if not pdf_mode %}
+  <link rel="stylesheet" href="{% static 'sop_management/css/app.css' %}">
+  {% endif %}
+  <style>
+    @page { size: a4; margin: 18mm 16mm 20mm; }
+    body { color: #17365d; font-family: Arial, Helvetica, sans-serif; }
+    .document-body { color: #111827; line-height: 1.5; overflow-wrap: anywhere; }
+    .document-body table { border-collapse: collapse; width: 100%; }
+    .document-body th, .document-body td { border: 1px solid #94a3b8; padding: 5px; }
+    .ghce-header { border-bottom: 1mm solid #00a6c7; background: #fff; }
+    .ghce-brand { align-items: center; padding: 4mm 5mm; }
+    .ghce-logo { display: inline-block; width: 16mm; height: 16mm; border-radius: 50%; background: #17365d; vertical-align: middle; }
+    .ghce-logo svg { width: 14mm; height: 14mm; }
+    .ghce-brand > div:last-child { display: inline-block; margin-left: 4mm; vertical-align: middle; }
+    .ghce-facility-name { color: #17365d; font-size: 13pt; font-weight: 700; }
+    .ghce-motto { color: #475569; font-size: 9pt; font-style: italic; }
+    .ghce-footer { margin-top: 8mm; border-top: 1px solid #e2e8f0; padding: 4mm; color: #475569; font-size: 8pt; line-height: 1.5; text-align: center; }
+    .document-sheet { max-width: 190mm; margin: 0 auto; padding: 8mm; border: 1px solid #cbd5e1; background: #fff; }
+    .document-sheet > header { border-bottom: 2px solid #17365d; padding-bottom: 4mm; text-align: center; }
+    .document-sheet > header h1 { color: #17365d; font-size: 15pt; font-weight: 700; }
+    .document-sheet > header p { margin: 2mm 0; }
+    .document-sheet > table { width: 100%; margin-top: 5mm; border-collapse: collapse; font-size: 9pt; }
+    .document-sheet > table th, .document-sheet > table td { border: 1px solid #94a3b8; padding: 2mm; }
+    .document-sheet > table th { background: #f1f5f9; text-align: left; }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; }
+      .document-body { font-size: 10pt; }
+      .document-sheet { box-shadow: none !important; border: 0 !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-50">
+  <header class="ghce-header border-b-4 border-ghc-cyan bg-white">
+    <div class="ghce-brand mx-auto flex max-w-7xl items-center gap-4 px-5 py-4">
+      <div class="ghce-logo flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-ghc-navy" aria-label="GHC-E medical emblem">
+        <svg viewBox="0 0 64 64" class="h-14 w-14" role="img" aria-label="Pixel medical briefcase and cross">
+          <rect x="12" y="22" width="40" height="28" rx="4" fill="#00A6C7"/>
+          <path d="M24 22v-5a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v5" fill="none" stroke="#8BDCF0" stroke-width="4"/>
+          <rect x="28" y="27" width="8" height="18" fill="#D8F3FA"/>
+          <rect x="23" y="32" width="18" height="8" fill="#D8F3FA"/>
+          <rect x="8" y="18" width="4" height="4" fill="#5B9BD5"/>
+          <rect x="52" y="18" width="4" height="4" fill="#5B9BD5"/>
+          <rect x="8" y="50" width="4" height="4" fill="#5B9BD5"/>
+          <rect x="52" y="50" width="4" height="4" fill="#5B9BD5"/>
+          <text x="32" y="60" fill="#D8F3FA" font-size="6" font-weight="700" text-anchor="middle">GHC-E</text>
+        </svg>
+      </div>
+      <div>
+        <div class="ghce-facility-name text-lg font-extrabold tracking-wide text-ghc-navy">GLOCAL HEALTHCARE CENTRE OF EXCELLENCE <span class="text-ghc-cyan">(GHC-E)</span></div>
+        <div class="ghce-motto text-sm font-medium italic text-slate-600">Global Standards, Local Care</div>
+      </div>
+    </div>
+  </header>
+  {% if not pdf_mode %}
+  <nav class="no-print bg-ghc-navy text-white">
+    <div class="mx-auto flex max-w-7xl items-center gap-5 px-5 py-3 text-sm">
+      <a class="font-semibold hover:text-cyan-200" href="{% url 'sop_management:document_list' %}">Documents</a>
+      {% if perms.sop_management.add_document and perms.sop_management.add_documentversion and perms.sop_management.change_documentversion %}
+      <a class="hover:text-cyan-200" href="{% url 'sop_management:document_create' %}">Register document</a>
+      {% endif %}
+    </div>
+  </nav>
+  {% endif %}
+  <main class="mx-auto max-w-7xl px-5 py-8">
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="ghce-footer mt-10 border-t border-slate-200 bg-white px-5 py-5 text-center text-xs leading-5 text-slate-600">
+    P.O Box 3243-00200 Nairobi – Kenya, Mwalimu Sacco, Kisaju Park, Namanga Road.<br>
+    Tel: +254 70904200 / +254 709040299. Email: info@glocalhealthcarecentre.org
+  </footer>
+</body>
+</html>

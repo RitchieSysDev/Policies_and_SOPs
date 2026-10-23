@@ -1,0 +1,9 @@
+@import "tailwindcss" source(none);
+
+@source "../../../templates";
+
+@theme {
+  --color-ghc-navy: #17365d;
+  --color-ghc-cyan: #00a6c7;
+  --color-ghc-blue: #5b9bd5;
+}
