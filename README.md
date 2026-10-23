@@ -13,8 +13,16 @@ variables. Never use the local SQLite default for production.
 The repository also includes a separate static GitHub Pages version:
 `index.html`, `styles.css`, `app.js`, and `documents.json`. Static hosting does
 not run Django, connect to the HMIS database, or provide server-side editing.
-The Pages site is public; it displays only approved active records placed in
-`documents.json`.
+The Pages catalogue is public and only approved active records in
+`documents.json` are published. It also provides a local browser editor for
+creating, editing, and approving draft records. Local edits are saved only in
+that browser's `localStorage`; the editor is not shared, authenticated, or
+suitable for confidential records. Use its **Export approved documents**
+button, review the downloaded `documents.json`, and commit the approved
+catalogue to GitHub to publish updates for everyone.
+The browser editor provides heading levels, font family and size, text color,
+alignment, paragraph indentation, and line spacing; imported and edited body
+HTML is sanitized against the static site's allow-list before it is saved.
 
 ## Application layout
 
@@ -67,8 +75,10 @@ privacy review; the sample above is illustrative and is not a clinical policy.
 The site filters out records that are not approved, active, and structurally
 valid, and sanitizes supported rich text before rendering. Static Pages cannot
 enforce per-user permissions or hide repository files: publish no drafts,
-patient information, credentials, or internal-only documents. Use the Django
-app and HMIS deployment for authenticated editing and workflow.
+patient information, credentials, or internal-only documents. The browser
+editor is intended for local demonstrations and preparing a reviewed export.
+Use the Django app and HMIS deployment for secure, shared staff editing and
+approval workflows.
 
 ## Integration
 

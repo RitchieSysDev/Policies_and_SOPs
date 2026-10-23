@@ -32,10 +32,18 @@
         <div>
           <p class="eyebrow">Document control</p>
           <h1 id="page-title">Policies &amp; Standard Operating Procedures</h1>
-          <p class="lead">Browse the currently approved editions of GHC-E controlled documents.</p>
+          <p class="lead">Browse approved documents or prepare a local draft.</p>
         </div>
         <p id="document-count" class="count-badge" aria-live="polite">Loading documents…</p>
       </div>
+
+      <div class="editor-toolbar">
+        <button id="create-button" class="button button-primary" type="button">Create SOP / Policy</button>
+        <button id="export-button" class="button button-secondary" type="button">Export approved documents</button>
+      </div>
+      <p class="local-editing-notice">
+        <strong>Local editing only:</strong> drafts and edits are stored in this browser. Export the approved JSON and commit it to GitHub to publish changes for other users.
+      </p>
 
       <section class="search-panel" aria-label="Find documents">
         <label class="search-field">
@@ -55,13 +63,151 @@
       <noscript>
         <p class="notice">JavaScript is required to load the published document catalogue.</p>
       </noscript>
-      <p class="privacy-note">This public site contains approved documents only. Drafts and internal working materials must not be published here.</p>
+      <p class="privacy-note">Published records are approved documents. Drafts created with this page are private to this browser only; never enter patient information or confidential content.</p>
+    </section>
+
+    <section id="editor-view" aria-labelledby="editor-title" hidden>
+      <div class="editor-heading">
+        <div>
+          <p class="eyebrow">Local editor</p>
+          <h1 id="editor-title">Create SOP / Policy</h1>
+          <p class="lead">Save this draft in your browser, then export approved records to publish them.</p>
+        </div>
+        <button id="cancel-editor-button" class="button button-secondary" type="button">Cancel</button>
+      </div>
+      <p class="local-editing-notice">
+        This is a shared-device prototype, not a secure multi-user editor. Do not enter confidential, patient-identifiable, or internal-only content. Drafts stay in this browser until exported.
+      </p>
+      <form id="document-form" class="editor-form">
+        <input id="edit-original-code" type="hidden">
+        <div class="editor-grid">
+          <label class="editor-field">
+            <span>Document code <span class="required-mark">*</span></span>
+            <input id="field-document-code" name="document_code" maxlength="50" required>
+          </label>
+          <label class="editor-field">
+            <span>Version</span>
+            <input id="field-version" name="version_number" readonly>
+          </label>
+          <label class="editor-field editor-field-wide">
+            <span>Document title <span class="required-mark">*</span></span>
+            <input id="field-title" name="title" maxlength="255" required>
+          </label>
+          <label class="editor-field">
+            <span>Owner committee <span class="required-mark">*</span></span>
+            <input id="field-committee" name="owner_committee" maxlength="200" required>
+          </label>
+          <label class="editor-field">
+            <span>Facility level</span>
+            <input id="field-facility-level" name="facility_level" value="Level 3B" maxlength="50">
+          </label>
+          <label class="editor-field">
+            <span>County</span>
+            <input id="field-county" name="county" maxlength="100">
+          </label>
+          <label class="editor-field">
+            <span>Sub-county</span>
+            <input id="field-sub-county" name="sub_county" maxlength="100">
+          </label>
+          <label class="editor-field">
+            <span>Effective date <span class="required-mark">*</span></span>
+            <input id="field-effective-date" name="effective_date" type="date" required>
+          </label>
+          <label class="editor-field">
+            <span>Review date <span class="required-mark">*</span></span>
+            <input id="field-review-date" name="review_date" type="date" required>
+          </label>
+          <label class="editor-field editor-field-wide">
+            <span>Approved by <span class="field-hint">(required before approval)</span></span>
+            <input id="field-approved-by" name="approved_by" maxlength="200">
+          </label>
+          <label class="editor-field editor-field-wide">
+            <span>Document body (HTML) <span class="required-mark">*</span></span>
+            <div class="format-toolbar" role="toolbar" aria-label="Document body formatting">
+              <label class="toolbar-control">
+                <span class="visually-hidden">Paragraph style</span>
+                <select id="format-block" aria-label="Paragraph style">
+                  <option value="P">Paragraph</option>
+                  <option value="H1">Heading 1</option>
+                  <option value="H2">Heading 2</option>
+                  <option value="H3">Heading 3</option>
+                  <option value="H4">Heading 4</option>
+                  <option value="H5">Heading 5</option>
+                </select>
+              </label>
+              <label class="toolbar-control">
+                <span class="visually-hidden">Font family</span>
+                <select id="format-font" aria-label="Font family">
+                  <option value="">Font family</option>
+                  <option value="Arial">Arial</option>
+                  <option value="Georgia">Georgia</option>
+                  <option value="Times New Roman">Times New Roman</option>
+                  <option value="Verdana">Verdana</option>
+                </select>
+              </label>
+              <label class="toolbar-control">
+                <span class="visually-hidden">Text size</span>
+                <select id="format-size" aria-label="Text size">
+                  <option value="">Text size</option>
+                  <option value="1">Small</option>
+                  <option value="3">Normal</option>
+                  <option value="4">Large</option>
+                  <option value="5">Larger</option>
+                </select>
+              </label>
+              <label class="toolbar-control">
+                <span class="visually-hidden">Line spacing</span>
+                <select id="format-line-height" aria-label="Line spacing">
+                  <option value="">Line spacing</option>
+                  <option value="1">Single</option>
+                  <option value="1.15">Compact</option>
+                  <option value="1.5">1.5 lines</option>
+                  <option value="2">Double</option>
+                </select>
+              </label>
+              <label class="toolbar-control">
+                <span class="visually-hidden">First line indent</span>
+                <select id="format-indent" aria-label="First line indent">
+                  <option value="">First line indent</option>
+                  <option value="1.25em">Small</option>
+                  <option value="2.5em">Large</option>
+                </select>
+              </label>
+              <label class="toolbar-control toolbar-color">
+                <span>Text color</span>
+                <input id="format-color" type="color" value="#17365d" aria-label="Text color">
+              </label>
+              <button class="format-button" type="button" data-command="bold" aria-label="Bold"><strong>B</strong></button>
+              <button class="format-button" type="button" data-command="italic" aria-label="Italic"><em>I</em></button>
+              <button class="format-button" type="button" data-command="underline" aria-label="Underline"><u>U</u></button>
+              <button class="format-button" type="button" data-command="insertUnorderedList" aria-label="Bulleted list">• List</button>
+              <button class="format-button" type="button" data-command="insertOrderedList" aria-label="Numbered list">1. List</button>
+              <button class="format-button" type="button" data-command="justifyLeft" aria-label="Align left">Left</button>
+              <button class="format-button" type="button" data-command="justifyCenter" aria-label="Align center">Center</button>
+              <button class="format-button" type="button" data-command="justifyRight" aria-label="Align right">Right</button>
+              <button class="format-button" type="button" data-command="outdent" aria-label="Decrease paragraph indent">Outdent</button>
+              <button class="format-button" type="button" data-command="indent" aria-label="Increase paragraph indent">Indent</button>
+            </div>
+            <div id="field-body-editor" class="rich-text-editor" contenteditable="true" role="textbox" aria-label="Document body content" aria-multiline="true" spellcheck="true"></div>
+            <textarea id="field-body" name="body_html" hidden></textarea>
+            <span class="field-hint">Select text and use the toolbar to format headings, typography, color, paragraph spacing and indentation. Unsafe markup is removed before saving.</span>
+          </label>
+        </div>
+        <p id="editor-message" class="notice" role="alert" hidden></p>
+        <div class="editor-actions">
+          <button class="button button-primary" type="submit" name="action" value="draft">Save draft in this browser</button>
+          <button class="button button-approve" type="submit" name="action" value="approve">Approve and activate locally</button>
+        </div>
+      </form>
     </section>
 
     <section id="detail-view" aria-labelledby="detail-title" hidden>
       <div class="detail-actions">
         <a id="back-link" class="back-link" href="./">← All documents</a>
-        <button id="print-button" class="button button-primary" type="button">Print / save as PDF</button>
+        <div class="detail-buttons">
+          <button id="edit-button" class="button button-secondary" type="button">Edit / revise</button>
+          <button id="print-button" class="button button-primary" type="button">Print / save as PDF</button>
+        </div>
       </div>
       <article id="document-sheet" class="document-sheet"></article>
     </section>
