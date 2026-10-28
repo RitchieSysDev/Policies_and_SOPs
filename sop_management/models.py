@@ -8,6 +8,31 @@ from django.db.models import Q
 from .content import sanitize_document_html
 
 
+OWNER_CHOICES = (
+    (
+        "Committees",
+        (
+            ("Infection Prevention and Control (IPC)", "Infection Prevention and Control (IPC)"),
+            ("Maternal and Paediatric Death Surveillance Response (MPDSR)", "Maternal and Paediatric Death Surveillance Response (MPDSR)"),
+            ("Medicines and Therapeutic Committee (MTC)", "Medicines and Therapeutic Committee (MTC)"),
+            ("Patient Safety (PS)", "Patient Safety (PS)"),
+            ("Quality Assurance (QA)", "Quality Assurance (QA)"),
+        ),
+    ),
+    (
+        "Departments",
+        (
+            ("Admin", "Admin"),
+            ("Clinical Office", "Clinical Office"),
+            ("Nursing", "Nursing"),
+            ("Laboratory", "Laboratory"),
+            ("Pharmacy", "Pharmacy"),
+            ("Support", "Support"),
+        ),
+    ),
+)
+
+
 class Committee(models.Model):
     name = models.CharField(max_length=200, unique=True)
     is_active = models.BooleanField(default=True)
@@ -25,10 +50,9 @@ class Document(models.Model):
     facility_level = models.CharField(max_length=50, default="Level 3B")
     county = models.CharField(max_length=100)
     sub_county = models.CharField(max_length=100)
-    document_owner_committee = models.ForeignKey(
-        Committee,
-        on_delete=models.PROTECT,
-        related_name="documents",
+    owner = models.CharField(
+        "Owner (Committee or Department)",
+        max_length=200,
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -65,6 +89,8 @@ class DocumentVersion(models.Model):
     title = models.CharField(max_length=255)
     body = models.TextField()
     approved_by = models.CharField(max_length=200, blank=True)
+    approver_designation = models.CharField(max_length=200, blank=True)
+    approval_date = models.DateField(null=True, blank=True)
     effective_date = models.DateField()
     review_date = models.DateField()
     version_number = models.DecimalField(max_digits=5, decimal_places=1)

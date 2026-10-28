@@ -29,9 +29,11 @@
       <tr><th class="w-1/4 border border-slate-400 bg-slate-100 p-2 text-left">Document code</th><td class="border border-slate-400 p-2">{{ document.document_code }}</td><th class="w-1/4 border border-slate-400 bg-slate-100 p-2 text-left">Version</th><td class="border border-slate-400 p-2">{% if version %}{{ version.version_number }}{% else %}—{% endif %}</td></tr>
       <tr><th class="border border-slate-400 bg-slate-100 p-2 text-left">Title</th><td class="border border-slate-400 p-2" colspan="3">{% if version %}{{ version.title }}{% else %}No approved version{% endif %}</td></tr>
       <tr><th class="border border-slate-400 bg-slate-100 p-2 text-left">Facility level</th><td class="border border-slate-400 p-2">{{ document.facility_level }}</td><th class="border border-slate-400 bg-slate-100 p-2 text-left">County / Sub-county</th><td class="border border-slate-400 p-2">{{ document.county }} / {{ document.sub_county }}</td></tr>
-      <tr><th class="border border-slate-400 bg-slate-100 p-2 text-left">Owner committee</th><td class="border border-slate-400 p-2">{{ document.document_owner_committee }}</td><th class="border border-slate-400 bg-slate-100 p-2 text-left">Status</th><td class="border border-slate-400 p-2">{% if version %}{{ version.get_status_display }}{% else %}Not approved{% endif %}</td></tr>
+      <tr><th class="border border-slate-400 bg-slate-100 p-2 text-left">Owner (Committee or Department)</th><td class="border border-slate-400 p-2">{{ document.owner }}</td><th class="border border-slate-400 bg-slate-100 p-2 text-left">Status</th><td class="border border-slate-400 p-2">{% if version %}{{ version.get_status_display }}{% else %}Not approved{% endif %}</td></tr>
       <tr><th class="border border-slate-400 bg-slate-100 p-2 text-left">Effective date</th><td class="border border-slate-400 p-2">{% if version %}{{ version.effective_date|date:"d M Y" }}{% else %}—{% endif %}</td><th class="border border-slate-400 bg-slate-100 p-2 text-left">Review date</th><td class="border border-slate-400 p-2">{% if version %}{{ version.review_date|date:"d M Y" }}{% else %}—{% endif %}</td></tr>
-      <tr><th class="border border-slate-400 bg-slate-100 p-2 text-left">Approved by</th><td class="border border-slate-400 p-2" colspan="3">{% if version %}{{ version.approved_by|default:"Pending approval" }}{% else %}—{% endif %}</td></tr>
+      <tr><th class="border border-slate-400 bg-slate-100 p-2 text-left" colspan="4">Approved by</th></tr>
+      <tr><th class="border border-slate-400 bg-slate-100 p-2 text-left">Name</th><td class="border border-slate-400 p-2">{% if version %}{{ version.approved_by|default:"Pending approval" }}{% else %}—{% endif %}</td><th class="border border-slate-400 bg-slate-100 p-2 text-left">Designation</th><td class="border border-slate-400 p-2">{% if version %}{{ version.approver_designation|default:"—" }}{% else %}—{% endif %}</td></tr>
+      <tr><th class="border border-slate-400 bg-slate-100 p-2 text-left">Date of approval</th><td class="border border-slate-400 p-2" colspan="3">{% if version %}{{ version.approval_date|date:"d M Y"|default:"—" }}{% else %}—{% endif %}</td></tr>
     </tbody>
   </table>
   {% if version %}
@@ -42,7 +44,9 @@
   {% if version and version.status == "DRAFT" and perms.sop_management.change_documentversion and not pdf_mode %}
   <form method="post" action="{% url 'sop_management:version_approve' document.pk version.pk %}" class="no-print mt-8 border-t pt-5">
     {% csrf_token %}
-    <p class="mb-3 text-sm text-slate-600">Approval records the authenticated user as approver and archives the previous active edition.</p>
+    <p class="mb-3 text-sm text-slate-600">Approval records the authenticated user, designation, and date, then archives the previous active edition.</p>
+    <label class="mb-3 block text-sm font-semibold text-slate-700" for="approver-designation">Approver designation</label>
+    <input id="approver-designation" name="approver_designation" maxlength="200" required class="mb-4 block w-full rounded border border-slate-300 px-3 py-2">
     <button class="rounded bg-emerald-700 px-4 py-2 font-semibold text-white" type="submit">Approve this draft</button>
   </form>
   {% endif %}

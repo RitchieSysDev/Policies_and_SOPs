@@ -15,6 +15,8 @@ def create_version_draft(*, document_id, form, user):
     version.status = DocumentVersion.Status.DRAFT
     version.is_active = False
     version.approved_by = ""
+    version.approver_designation = ""
+    version.approval_date = None
     version.save()
     return version
 
@@ -57,12 +59,14 @@ def save_version_edit(*, document_id, version_id, form, user):
     version.status = DocumentVersion.Status.DRAFT
     version.is_active = False
     version.approved_by = ""
+    version.approver_designation = ""
+    version.approval_date = None
     version.save()
     return version
 
 
 @transaction.atomic
-def approve_version(*, document_id, version_id, user):
+def approve_version(*, document_id, version_id, user, approver_designation):
     document = Document.objects.select_for_update().get(pk=document_id)
     version = (
         DocumentVersion.objects.select_for_update()
@@ -70,6 +74,11 @@ def approve_version(*, document_id, version_id, user):
     )
     if version.status != DocumentVersion.Status.DRAFT:
         raise ValidationError("Only draft versions can be approved.")
+    approver_designation = approver_designation.strip()
+    if not approver_designation:
+        raise ValidationError(
+            {"approver_designation": "Approver designation is required."}
+        )
     if version.review_date < version.effective_date:
         raise ValidationError("Review date cannot precede the effective date.")
 
@@ -84,12 +93,16 @@ def approve_version(*, document_id, version_id, user):
     version.status = DocumentVersion.Status.APPROVED
     version.is_active = True
     version.approved_by = user.get_full_name().strip() or user.get_username()
+    version.approver_designation = approver_designation
+    version.approval_date = timezone.localdate()
     version.full_clean()
     version.save(
         update_fields=(
             "status",
             "is_active",
             "approved_by",
+            "approver_designation",
+            "approval_date",
             "body",
             "updated_at",
         )

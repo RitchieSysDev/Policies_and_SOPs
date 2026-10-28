@@ -13,14 +13,14 @@
 <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
   <table class="w-full text-left text-sm">
     <thead class="bg-ghc-navy text-white">
-      <tr><th class="p-3">Document code</th><th class="p-3">Title</th><th class="p-3">Committee</th><th class="p-3">Version</th><th class="p-3">Review date</th></tr>
+      <tr><th class="p-3">Document code</th><th class="p-3">Title</th><th class="p-3">Owner</th><th class="p-3">Version</th><th class="p-3">Review date</th></tr>
     </thead>
     <tbody>
       {% for document in documents %}
       <tr class="border-t border-slate-200 hover:bg-slate-50">
         <td class="p-3 font-semibold"><a class="text-ghc-navy underline" href="{% url 'sop_management:document_detail' document.pk %}">{{ document.document_code }}</a></td>
         <td class="p-3">{% with active=document.active_versions.0 %}{% if active %}{{ active.title }}{% else %}<span class="text-slate-500">No approved version</span>{% endif %}{% endwith %}</td>
-        <td class="p-3">{{ document.document_owner_committee }}</td>
+        <td class="p-3">{{ document.owner }}</td>
         <td class="p-3">{% with active=document.active_versions.0 %}{% if active %}{{ active.version_number }}{% else %}—{% endif %}{% endwith %}</td>
         <td class="p-3">{% with active=document.active_versions.0 %}{% if active %}{{ active.review_date|date:"d M Y" }}{% else %}—{% endif %}{% endwith %}</td>
       </tr>

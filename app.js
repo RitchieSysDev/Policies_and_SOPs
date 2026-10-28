@@ -58,6 +58,7 @@ function isValidRecord(record) {
     && (record.status !== "APPROVED" || record.is_active)
     && (record.status === "APPROVED" || !record.is_active)
     && (record.status !== "APPROVED" || isText(record.approved_by))
+    && (!record.approval_date || isValidDate(record.approval_date))
     && isValidDate(record.effective_date)
     && isValidDate(record.review_date)
     && Date.parse(`${record.review_date}T00:00:00Z`)
@@ -246,7 +247,7 @@ function populateCommitteeFilter() {
   const previousValue = committeeFilter.value;
   const committees = [...new Set(currentRecords().map((item) => item.owner_committee))]
     .sort((a, b) => a.localeCompare(b));
-  committeeFilter.replaceChildren(new Option("All committees", ""));
+  committeeFilter.replaceChildren(new Option("All owners", ""));
   for (const name of committees) {
     committeeFilter.append(new Option(name, name));
   }
@@ -285,7 +286,7 @@ function renderDocumentList() {
       "p",
       "",
       current.length
-        ? "Try a different title, code, county, or committee."
+        ? "Try a different title, code, county, or owner."
         : "Create a local SOP or policy draft, or add approved records to documents.json.",
     );
     empty.append(heading, message);
@@ -362,7 +363,7 @@ function renderDocumentDetail(documentRecord) {
   appendControlRow(tbody, "County", documentRecord.county, "Sub-county", documentRecord.sub_county);
   appendControlRow(
     tbody,
-    "Owner committee",
+    "Owner (Committee or Department)",
     documentRecord.owner_committee,
     "Status",
     documentRecord.status === "DRAFT" ? "Local draft — not approved" : "Approved",
@@ -372,6 +373,13 @@ function renderDocumentDetail(documentRecord) {
     tbody,
     documentRecord.status === "DRAFT" ? "Proposed approver" : "Approved by",
     documentRecord.approved_by,
+    "Designation",
+    documentRecord.approver_designation,
+  );
+  appendControlRow(
+    tbody,
+    "Date of approval",
+    documentRecord.approval_date ? formatDate(documentRecord.approval_date) : "—",
     "Approval",
     documentRecord.status === "DRAFT" ? "Pending" : "Approved",
   );
@@ -478,7 +486,20 @@ function openEditor(record = null) {
     ? record.version_number
     : "1.0";
   document.querySelector("#field-title").value = record?.title ?? "";
-  document.querySelector("#field-committee").value = record?.owner_committee ?? "";
+  const ownerSelect = document.querySelector("#field-committee");
+  ownerSelect.querySelector(".legacy-owner-option")?.remove();
+  const owner = record?.owner_committee ?? "";
+  if (owner && ![...ownerSelect.options].some((option) => option.value === owner)) {
+    const legacyOwners = document.createElement("optgroup");
+    legacyOwners.className = "legacy-owner-option";
+    legacyOwners.label = "Existing owner (legacy)";
+    const legacyOwner = document.createElement("option");
+    legacyOwner.value = owner;
+    legacyOwner.textContent = owner;
+    legacyOwners.append(legacyOwner);
+    ownerSelect.append(legacyOwners);
+  }
+  ownerSelect.value = owner;
   document.querySelector("#field-facility-level").value = record?.facility_level || "Level 3B";
   document.querySelector("#field-county").value = record?.county ?? "";
   document.querySelector("#field-sub-county").value = record?.sub_county ?? "";
@@ -487,6 +508,7 @@ function openEditor(record = null) {
   document.querySelector("#field-review-date").value = record?.review_date
     ?? localDateString(new Date(new Date().setFullYear(new Date().getFullYear() + 1)));
   document.querySelector("#field-approved-by").value = record?.approved_by ?? "";
+    document.querySelector("#field-approver-designation").value = record?.approver_designation ?? "";
   document.querySelector("#field-body").value = record?.body_html ?? "";
   const bodyEditor = document.querySelector("#field-body-editor");
   bodyEditor.replaceChildren(renderSafeBody(record?.body_html ?? ""));
@@ -527,7 +549,7 @@ function saveDraft(formValues, action) {
   const code = formValues.document_code.trim();
   const originalCode = document.querySelector("#edit-original-code").value;
   if (!code || !isText(formValues.title) || !isText(formValues.owner_committee)) {
-    throw new Error("Enter a document code, title, and owner committee.");
+    throw new Error("Enter a document code, title, and owner.");
   }
   if (!isText(formValues.body_html)) {
     throw new Error("Enter the document body before saving.");
@@ -569,6 +591,8 @@ function saveDraft(formValues, action) {
     effective_date: formValues.effective_date,
     review_date: formValues.review_date,
     approved_by: formValues.approved_by.trim(),
+    approver_designation: formValues.approver_designation.trim(),
+    approval_date: action === "approve" ? localDateString(new Date()) : null,
     status: action === "approve" ? "APPROVED" : "DRAFT",
     is_active: action === "approve",
     body_html: safeBodyContainer.innerHTML,
@@ -576,6 +600,9 @@ function saveDraft(formValues, action) {
   };
   if (action === "approve" && !isText(draft.approved_by)) {
     throw new Error("Enter the authorized approver name before approving.");
+  }
+  if (action === "approve" && !isText(draft.approver_designation)) {
+    throw new Error("Enter the authorized approver designation before approving.");
   }
   if (!isValidRecord(draft)) {
     throw new Error("Some document fields are invalid. Please review them and try again.");
@@ -621,6 +648,8 @@ function openRevision(code) {
       status: "DRAFT",
       is_active: false,
       approved_by: "",
+      approver_designation: "",
+      approval_date: null,
       history: [...(record.history ?? []), versionHistorySnapshot(record)],
     }
     : record;
@@ -646,6 +675,8 @@ function exportApprovedDocuments() {
       effective_date: record.effective_date,
       review_date: record.review_date,
       approved_by: record.approved_by,
+        approver_designation: record.approver_designation ?? "",
+        approval_date: record.approval_date ?? "",
       status: "APPROVED",
       is_active: true,
       body_html: record.body_html,

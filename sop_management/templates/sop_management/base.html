@@ -13,6 +13,17 @@
     @page { size: a4; margin: 18mm 16mm 20mm; }
     body { color: #17365d; font-family: Arial, Helvetica, sans-serif; }
     .document-body { color: #111827; line-height: 1.5; overflow-wrap: anywhere; }
+    .document-body { counter-reset: heading1; }
+    .document-body h1 { counter-increment: heading1; counter-reset: heading2 heading3 heading4 heading5; }
+    .document-body h1::before { content: counter(heading1) ".0 "; }
+    .document-body h2 { counter-increment: heading2; counter-reset: heading3 heading4 heading5; }
+    .document-body h2::before { content: counter(heading1) "." counter(heading2) ". "; }
+    .document-body h3 { counter-increment: heading3; counter-reset: heading4 heading5; }
+    .document-body h3::before { content: counter(heading1) "." counter(heading2) "." counter(heading3) ". "; }
+    .document-body h4 { counter-increment: heading4; counter-reset: heading5; }
+    .document-body h4::before { content: counter(heading1) "." counter(heading2) "." counter(heading3) "." counter(heading4) ". "; }
+    .document-body h5 { counter-increment: heading5; }
+    .document-body h5::before { content: counter(heading1) "." counter(heading2) "." counter(heading3) "." counter(heading4) "." counter(heading5) ". "; }
     .document-body table { border-collapse: collapse; width: 100%; }
     .document-body th, .document-body td { border: 1px solid #94a3b8; padding: 5px; }
     .ghce-header { border-bottom: 1mm solid #00a6c7; background: #fff; }

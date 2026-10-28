@@ -4,11 +4,12 @@ from decimal import Decimal
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from django.utils import timezone
 from django.urls import reverse
 
 from .content import sanitize_document_html
-from .forms import DocumentVersionForm
-from .models import Committee, Document, DocumentVersion
+from .forms import DocumentForm, DocumentVersionForm
+from .models import Document, DocumentVersion
 from .services import approve_version, save_version_edit
 
 
@@ -19,12 +20,11 @@ class DocumentVersionLifecycleTests(TestCase):
             first_name="Clinical",
             last_name="Approver",
         )
-        committee = Committee.objects.create(name="Clinical Governance Board")
         self.document = Document.objects.create(
             document_code="GHC-SOP-001",
             county="Kajiado",
             sub_county="Kajiado South",
-            document_owner_committee=committee,
+            owner="Patient Safety (PS)",
         )
 
     def make_version(self, *, number, status, active, approved_by=""):
@@ -40,6 +40,19 @@ class DocumentVersionLifecycleTests(TestCase):
             approved_by=approved_by,
             created_by=self.user,
         )
+
+    def test_owner_field_has_grouped_committee_and_department_choices(self):
+        choices = DocumentForm().fields["owner"].choices
+        self.assertEqual(choices[0][0], "Committees")
+        self.assertEqual(choices[1][0], "Departments")
+        self.assertIn("Patient Safety (PS)", dict(choices[0][1]))
+        self.assertIn("Nursing", dict(choices[1][1]))
+
+    def test_existing_owner_is_available_when_editing_document(self):
+        self.document.owner = "Clinical Governance Board"
+        self.document.save()
+        choices = DocumentForm(instance=self.document).fields["owner"].choices
+        self.assertIn("Clinical Governance Board", dict(choices[-1][1]))
 
     def test_approving_draft_archives_previous_active_version(self):
         previous = self.make_version(
@@ -58,6 +71,7 @@ class DocumentVersionLifecycleTests(TestCase):
             document_id=self.document.pk,
             version_id=draft.pk,
             user=self.user,
+            approver_designation="Clinical Director",
         )
 
         previous.refresh_from_db()
@@ -67,6 +81,8 @@ class DocumentVersionLifecycleTests(TestCase):
         self.assertEqual(draft.status, DocumentVersion.Status.APPROVED)
         self.assertTrue(draft.is_active)
         self.assertEqual(draft.approved_by, "Clinical Approver")
+        self.assertEqual(draft.approver_designation, "Clinical Director")
+        self.assertEqual(draft.approval_date, timezone.localdate())
 
     def test_editing_approved_version_creates_a_new_draft(self):
         approved = self.make_version(
@@ -113,6 +129,21 @@ class DocumentVersionLifecycleTests(TestCase):
                 document_id=self.document.pk,
                 version_id=archived.pk,
                 user=self.user,
+                approver_designation="Clinical Director",
+            )
+
+    def test_approval_requires_approver_designation(self):
+        draft = self.make_version(
+            number="1.0",
+            status=DocumentVersion.Status.DRAFT,
+            active=False,
+        )
+        with self.assertRaises(ValidationError):
+            approve_version(
+                document_id=self.document.pk,
+                version_id=draft.pk,
+                user=self.user,
+                approver_designation="",
             )
 
     def test_rich_text_sanitizer_removes_scripts_and_event_handlers(self):
@@ -143,18 +174,19 @@ class DocumentWebsiteAccessTests(TestCase):
         self.assertEqual(self.client.get("/accounts/logout/").status_code, 404)
 
     def test_anonymous_user_can_view_approved_document_and_pdf(self):
-        committee = Committee.objects.create(name="Quality Committee")
         document = Document.objects.create(
             document_code="GHC-POL-002",
             county="Kajiado",
             sub_county="Kajiado South",
-            document_owner_committee=committee,
+            owner="Quality Assurance (QA)",
         )
         DocumentVersion.objects.create(
             document=document,
             title="Safe patient care",
             body="<h2>Policy</h2><p>Use approved clinical procedures.</p>",
             approved_by="Clinical Approver",
+            approver_designation="Clinical Director",
+            approval_date=date(2026, 1, 1),
             effective_date=date(2026, 1, 1),
             review_date=date(2027, 1, 1),
             version_number=Decimal("1.0"),
@@ -173,18 +205,20 @@ class DocumentWebsiteAccessTests(TestCase):
 
         self.assertEqual(detail_response.status_code, 200)
         self.assertContains(detail_response, "Safe patient care")
+        self.assertContains(detail_response, "Clinical Approver")
+        self.assertContains(detail_response, "Clinical Director")
+        self.assertContains(detail_response, "01 Jan 2026")
         self.assertContains(list_response, "GHC-POL-002")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response["Content-Type"], "application/pdf")
         self.assertTrue(response.content.startswith(b"%PDF-"))
 
     def test_anonymous_user_cannot_view_unapproved_document(self):
-        committee = Committee.objects.create(name="Drafts Committee")
         document = Document.objects.create(
             document_code="GHC-DRAFT-003",
             county="Kajiado",
             sub_county="Kajiado South",
-            document_owner_committee=committee,
+            owner="Admin",
         )
         DocumentVersion.objects.create(
             document=document,

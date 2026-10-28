@@ -24,9 +24,7 @@ def document_list(request):
         is_active=True,
         status=DocumentVersion.Status.APPROVED,
     )
-    documents = Document.objects.select_related(
-        "document_owner_committee"
-    ).prefetch_related(
+    documents = Document.objects.prefetch_related(
         Prefetch("versions", queryset=active_versions, to_attr="active_versions")
     )
     if not request.user.is_authenticated:
@@ -40,7 +38,7 @@ def document_list(request):
 @never_cache
 def document_detail(request, pk):
     document = get_object_or_404(
-        Document.objects.select_related("document_owner_committee"),
+        Document.objects,
         pk=pk,
     )
     version = document.versions.filter(
@@ -203,6 +201,7 @@ def version_approve(request, document_id, version_id):
             document_id=document_id,
             version_id=version_id,
             user=request.user,
+            approver_designation=request.POST.get("approver_designation", ""),
         )
     except ValidationError as exc:
         return HttpResponse("; ".join(exc.messages), status=400)
@@ -212,7 +211,7 @@ def version_approve(request, document_id, version_id):
 @never_cache
 def document_pdf(request, pk):
     document = get_object_or_404(
-        Document.objects.select_related("document_owner_committee"),
+        Document.objects,
         pk=pk,
     )
     version = document.versions.filter(

@@ -51,9 +51,9 @@
           <input id="search-input" type="search" placeholder="Search title, code, county, or committee" autocomplete="off">
         </label>
         <label class="search-field committee-filter">
-          <span>Owner committee</span>
+          <span>Owner</span>
           <select id="committee-filter">
-            <option value="">All committees</option>
+            <option value="">All owners</option>
           </select>
         </label>
       </section>
@@ -94,8 +94,25 @@
             <input id="field-title" name="title" maxlength="255" required>
           </label>
           <label class="editor-field">
-            <span>Owner committee <span class="required-mark">*</span></span>
-            <input id="field-committee" name="owner_committee" maxlength="200" required>
+            <span>Owner (Committee or Department) <span class="required-mark">*</span></span>
+            <select id="field-committee" name="owner_committee" required>
+              <option value="">Select an owner</option>
+              <optgroup label="Committees">
+                <option>Infection Prevention and Control (IPC)</option>
+                <option>Maternal and Paediatric Death Surveillance Response (MPDSR)</option>
+                <option>Medicines and Therapeutic Committee (MTC)</option>
+                <option>Patient Safety (PS)</option>
+                <option>Quality Assurance (QA)</option>
+              </optgroup>
+              <optgroup label="Departments">
+                <option>Admin</option>
+                <option>Clinical Office</option>
+                <option>Nursing</option>
+                <option>Laboratory</option>
+                <option>Pharmacy</option>
+                <option>Support</option>
+              </optgroup>
+            </select>
           </label>
           <label class="editor-field">
             <span>Facility level</span>
@@ -118,8 +135,12 @@
             <input id="field-review-date" name="review_date" type="date" required>
           </label>
           <label class="editor-field editor-field-wide">
-            <span>Approved by <span class="field-hint">(required before approval)</span></span>
+            <span>Approver name <span class="field-hint">(required before approval)</span></span>
             <input id="field-approved-by" name="approved_by" maxlength="200">
+          </label>
+          <label class="editor-field editor-field-wide">
+            <span>Approver designation <span class="field-hint">(required before approval)</span></span>
+            <input id="field-approver-designation" name="approver_designation" maxlength="200">
           </label>
           <label class="editor-field editor-field-wide">
             <span>Document body (HTML) <span class="required-mark">*</span></span>

@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from .forms import DocumentForm
 from .models import Committee, Document, DocumentVersion
 
 
@@ -25,15 +26,16 @@ class DocumentVersionInline(admin.TabularInline):
 
 @admin.register(Document)
 class DocumentAdmin(admin.ModelAdmin):
+    form = DocumentForm
     list_display = (
         "document_code",
         "facility_level",
         "county",
         "sub_county",
-        "document_owner_committee",
+        "owner",
     )
-    search_fields = ("document_code", "county", "sub_county")
-    list_filter = ("facility_level", "county", "document_owner_committee")
+    search_fields = ("document_code", "county", "sub_county", "owner")
+    list_filter = ("facility_level", "county", "owner")
     inlines = (DocumentVersionInline,)
 
     def get_readonly_fields(self, request, obj=None):
@@ -52,7 +54,12 @@ class DocumentVersionAdmin(admin.ModelAdmin):
         "review_date",
     )
     list_filter = ("status", "is_active", "effective_date")
-    search_fields = ("document__document_code", "title", "approved_by")
+    search_fields = (
+        "document__document_code",
+        "title",
+        "approved_by",
+        "approver_designation",
+    )
     readonly_fields = tuple(field.name for field in DocumentVersion._meta.fields)
 
     def has_add_permission(self, request):
